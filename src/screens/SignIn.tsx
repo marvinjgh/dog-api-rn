@@ -1,6 +1,6 @@
 import {StyleSheet, View, TextInput as NativeTextInput} from 'react-native';
 import {TextInput, Button, Headline} from 'react-native-paper';
-import React from 'react';
+import React, {useState} from 'react';
 import {useDispatch} from 'react-redux';
 import {login} from '../redux/appSlice';
 import {RootStackScreenProps} from '../navigations/types';
@@ -8,8 +8,11 @@ import ScreenLayout from '../components/ScreenLayout';
 import Theme from '../constants/Theme';
 
 export default function SignIn({}: RootStackScreenProps<'SignIn'>) {
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+
+  const [error1, setError1] = useState(false);
+  const [error2, setError2] = useState(false);
   const nameRef = React.useRef<NativeTextInput>(null);
   const emailRef = React.useRef<NativeTextInput>(null);
 
@@ -32,6 +35,8 @@ export default function SignIn({}: RootStackScreenProps<'SignIn'>) {
                 emailRef.current?.focus();
               }}
               style={styles.input}
+              error={error1}
+              onBlur={() => setError1(false)}
             />
           </View>
           <View style={styles.boxInput}>
@@ -43,13 +48,24 @@ export default function SignIn({}: RootStackScreenProps<'SignIn'>) {
               value={email}
               onChangeText={setEmail}
               style={styles.input}
+              error={error2}
+              onBlur={() => setError2(false)}
             />
           </View>
           <Button
             mode="contained"
             onPress={() => {
               // TODO manejo de campos vacios
-              dispatch(login({name, email}));
+              let errors = false;
+              if (name.trim().length === 0) {
+                setError1(true);
+                errors = true;
+              }
+              if (email.trim().length === 0) {
+                setError2(true);
+                errors = true;
+              }
+              !errors && dispatch(login({name, email}));
             }}
             style={styles.button}>
             Sign In
