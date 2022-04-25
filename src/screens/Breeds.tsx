@@ -40,6 +40,20 @@ export default function Breeds({navigation}: HomeTabScreenProps<'Breeds'>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const renderItem = ({item}: {item: BreedType}) => (
+    <BreedItem
+      breed={item}
+      onPress={() => navigation.navigate('Breed', {name: item.name})}
+      onFav={name => {
+        dispatch(setBreedFav({name}));
+      }}
+    />
+  );
+  const renderSeparator = () => <View style={styles.separetor} />;
+  const keyExtractor = (item: BreedType) => item.name;
+  const renderEmpty = () =>
+    loading ? <ActivityIndicator /> : <Text>{error}</Text>;
+
   return (
     <ScreenLayout>
       <Searchbar
@@ -47,7 +61,6 @@ export default function Breeds({navigation}: HomeTabScreenProps<'Breeds'>) {
         onChangeText={onChangeSearch}
         value={searchQuery}
       />
-
       <FlatList
         data={breeds.filter(breed => {
           if (searchQuery) {
@@ -55,24 +68,14 @@ export default function Breeds({navigation}: HomeTabScreenProps<'Breeds'>) {
           }
           return true;
         })}
-        renderItem={item => (
-          <BreedItem
-            breed={item.item}
-            onPress={() => navigation.navigate('Breed', {name: item.item.name})}
-            onFav={name => {
-              dispatch(setBreedFav({name}));
-            }}
-          />
-        )}
-        keyExtractor={item => item.name}
-        ListEmptyComponent={
-          loading ? <ActivityIndicator /> : <Text>{error}</Text>
-        }
-        ItemSeparatorComponent={() => <View style={styles.separetor} />}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        ListEmptyComponent={renderEmpty}
+        ItemSeparatorComponent={renderSeparator}
         refreshing={loading}
         contentContainerStyle={styles.listContainer}
-        ListHeaderComponent={() => <View style={styles.separetor} />}
-        ListFooterComponent={() => <View style={styles.separetor} />}
+        ListHeaderComponent={renderSeparator}
+        ListFooterComponent={renderSeparator}
       />
     </ScreenLayout>
   );
